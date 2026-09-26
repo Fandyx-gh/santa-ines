@@ -161,8 +161,6 @@ describe('discovery step validation', () => {
       deposit: 'no',
       paymentMethods: ['cash'],
       digitalImprovements: ['unsure'],
-      projectTiming: 'flexible',
-      proposalApprovers: 'Administración',
     };
 
     expect(validateStep(6, answers, santaInesConfig).errors.map((error) => error.name)).toContain('finalAdditionalNotes');

@@ -59,9 +59,6 @@ export interface DiscoveryAnswers {
   paymentMethods: string[];
   paymentMethodsOther: string;
   digitalImprovements: string[];
-  projectTiming: string;
-  projectTimingDetails: string;
-  proposalApprovers: string;
   finalAdditionalNotes: string;
 }
 

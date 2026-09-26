@@ -65,9 +65,6 @@ export const discoveryAnswersSchema = z.object({
   paymentMethods: z.array(z.string()),
   paymentMethodsOther: z.string().default(''),
   digitalImprovements: z.array(z.string()),
-  projectTiming: z.string().default(''),
-  projectTimingDetails: z.string().default(''),
-  proposalApprovers: z.string().default(''),
   finalAdditionalNotes: z.string().default(''),
 });
 
