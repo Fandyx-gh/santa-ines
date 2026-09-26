@@ -23,7 +23,7 @@ export interface DiscoveryAnswers {
   apartmentOccupancyUnknown: boolean;
   services: string[];
   servicesOther: string;
-  apartmentPhotos: string;
+  apartmentPhotos: string[];
   guestTypes: string[];
   guestTypesOther: string;
   stayDurations: string[];
@@ -39,16 +39,16 @@ export interface DiscoveryAnswers {
   confirmedReservationTracking: string[];
   confirmedReservationTrackingOther: string;
   bookingInformation: string;
-  afterHours: string;
+  afterHours: string[];
   afterHoursOther: string;
-  reservationAuthority: string;
+  reservationAuthority: string[];
   reservationAuthorityOther: string;
   reservationConditions: string[];
   reservationConditionsOther: string;
   desiredCapabilities: string[];
   externalPlatforms: string[];
   externalPlatformsOther: string;
-  domainPreference: string;
+  domainPreference: string[];
   domainOther: string;
   existingDomain: string;
   personalReview: string;

@@ -7,7 +7,10 @@ import type {
   SectionDefinition,
 } from '../types/discovery';
 
-const nullableNumber = z.number().finite().min(0).nullable();
+const nullableNumber = z.number().finite().int().min(0).nullable();
+const stringArrayValue = z.union([z.array(z.string()), z.string()]).transform((value) => (
+  Array.isArray(value) ? value : value ? [value] : []
+));
 
 export const discoveryAnswersSchema = z.object({
   totalApartments: nullableNumber,
@@ -26,7 +29,7 @@ export const discoveryAnswersSchema = z.object({
   apartmentOccupancyUnknown: z.boolean().default(false),
   services: z.array(z.string()),
   servicesOther: z.string(),
-  apartmentPhotos: z.string(),
+  apartmentPhotos: stringArrayValue.default([]),
   guestTypes: z.array(z.string()),
   guestTypesOther: z.string().default(''),
   stayDurations: z.array(z.string()),
@@ -44,14 +47,14 @@ export const discoveryAnswersSchema = z.object({
   bookingInformation: z.string(),
   reservationConditions: z.array(z.string()).default([]),
   reservationConditionsOther: z.string().default(''),
-  afterHours: z.string(),
+  afterHours: stringArrayValue.default([]),
   afterHoursOther: z.string(),
-  reservationAuthority: z.string(),
+  reservationAuthority: stringArrayValue.default([]),
   reservationAuthorityOther: z.string(),
   desiredCapabilities: z.array(z.string()),
   externalPlatforms: z.array(z.string()).default([]),
   externalPlatformsOther: z.string().default(''),
-  domainPreference: z.string().default(''),
+  domainPreference: stringArrayValue.default([]),
   domainOther: z.string().default(''),
   existingDomain: z.string().default(''),
   personalReview: z.string(),
@@ -139,7 +142,10 @@ function validateQuestion(question: QuestionDefinition, answers: DiscoveryAnswer
     isComplete = typeof value === 'number' && Number.isFinite(value) && value > 0;
   } else if (question.type === 'distribution') {
     const distribution = value as DiscoveryAnswers['apartmentDistribution'];
-    isComplete = Object.values(distribution).some((item) => item > 0);
+    const distributionTotal = Object.values(distribution).reduce((total, item) => total + item, 0);
+    isComplete = Object.values(distribution).some((item) => item > 0)
+      && answers.totalApartments !== null
+      && distributionTotal === answers.totalApartments;
   } else if (question.type === 'occupancy') {
     const occupancy = value as DiscoveryAnswers['apartmentOccupancy'];
     isComplete = answers.apartmentOccupancyUnknown
@@ -155,7 +161,10 @@ function validateQuestion(question: QuestionDefinition, answers: DiscoveryAnswer
     const errorName = question.type === 'distribution' || question.type === 'occupancy'
       ? `${question.id}.oneBedroom`
       : question.id;
-    errors.push({ name: errorName, message: defaultMessage(question) });
+    const message = question.type === 'distribution' && answers.totalApartments !== null
+      ? 'La suma de la distribución debe coincidir con el total de apartamentos.'
+      : defaultMessage(question);
+    errors.push({ name: errorName, message });
   }
 
   if (question.id === 'requestEmail' && isComplete && !z.string().email().safeParse(value).success) {

@@ -196,7 +196,7 @@ export const santaInesConfig: DiscoveryConfig = {
         },
         {
           id: 'apartmentPhotos',
-          type: 'single',
+          type: 'multi',
           label: '¿Tienen fotografías actuales de los apartamentos?',
           summaryLabel: 'Fotografías actuales',
           options: [
@@ -291,7 +291,6 @@ export const santaInesConfig: DiscoveryConfig = {
             { value: 'gas', label: 'Gas' },
             { value: 'internet', label: 'Internet' },
             { value: 'other', label: 'Otros' },
-            { value: 'not-applicable', label: 'No aplica' },
             { value: 'unsure', label: 'No estoy segura/o' },
           ],
           otherField: {
@@ -386,7 +385,7 @@ export const santaInesConfig: DiscoveryConfig = {
         },
         {
           id: 'afterHours',
-          type: 'single',
+          type: 'multi',
           label: 'Si alguien se comunica fuera del horario de atención, ¿qué ocurre normalmente?',
           options: [
             { value: 'message', label: 'Deja un mensaje' },
@@ -404,7 +403,7 @@ export const santaInesConfig: DiscoveryConfig = {
         },
         {
           id: 'reservationAuthority',
-          type: 'single',
+          type: 'multi',
           label: '¿Quién puede confirmar definitivamente una reserva?',
           options: [
             { value: 'reservations-manager', label: 'Encargado de reservas' },
@@ -455,7 +454,7 @@ export const santaInesConfig: DiscoveryConfig = {
         },
         {
           id: 'domainPreference',
-          type: 'single',
+          type: 'multi',
           label: '¿Qué nombre de dominio quieren explorar para la nueva presencia digital de Santa Inés?',
           helper: 'Todas las opciones están sujetas a disponibilidad, precio y condiciones de compra. Son rutas iniciales, no una confirmación de registro; deben verificarse directamente con un registrador.',
           options: domainOptions,
@@ -472,7 +471,7 @@ export const santaInesConfig: DiscoveryConfig = {
           helper: 'Escribe el dominio completo, por ejemplo: ejemplo.com.',
           placeholder: 'ejemplo.com',
           requiredMessage: 'Indica el dominio existente o escribe “No estoy segura/o”.',
-          condition: (answers) => answers.domainPreference === 'existing',
+          condition: (answers) => answers.domainPreference.includes('existing'),
         },
         {
           id: 'personalReview',
@@ -621,7 +620,7 @@ export const initialAnswers: DiscoveryAnswers = {
   apartmentOccupancyUnknown: false,
   services: [],
   servicesOther: '',
-  apartmentPhotos: '',
+  apartmentPhotos: [],
   guestTypes: [],
   guestTypesOther: '',
   stayDurations: [],
@@ -639,14 +638,14 @@ export const initialAnswers: DiscoveryAnswers = {
   bookingInformation: '',
   reservationConditions: [],
   reservationConditionsOther: '',
-  afterHours: '',
+  afterHours: [],
   afterHoursOther: '',
-  reservationAuthority: '',
+  reservationAuthority: [],
   reservationAuthorityOther: '',
   desiredCapabilities: [],
   externalPlatforms: [],
   externalPlatformsOther: '',
-  domainPreference: '',
+  domainPreference: [],
   domainOther: '',
   existingDomain: '',
   personalReview: '',

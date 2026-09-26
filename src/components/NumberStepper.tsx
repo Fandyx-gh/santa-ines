@@ -33,13 +33,22 @@ export function NumberStepper({ value, onChange, label, placeholder = '0' }: Num
           type="number"
           min="0"
           max="999"
+          step="1"
           inputMode="numeric"
           value={value ?? ''}
           placeholder={placeholder}
           aria-label={label}
           onChange={(event) => {
             const nextValue = event.target.value;
-            onChange(nextValue === '' ? null : Math.max(0, Math.min(999, Number(nextValue))));
+            if (nextValue === '') {
+              onChange(null);
+              return;
+            }
+
+            const numericValue = Number(nextValue);
+            if (Number.isFinite(numericValue)) {
+              onChange(Math.max(0, Math.min(999, Math.trunc(numericValue))));
+            }
           }}
         />
         <button type="button" className="stepper-button" onClick={increment} aria-label={`Aumentar ${label}`}>

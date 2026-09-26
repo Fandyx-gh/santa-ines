@@ -25,10 +25,13 @@ describe('discovery step validation', () => {
     ]);
   });
 
-  it('allows a non-blocking category mismatch after visible questions are complete', () => {
+  it('requires the distribution to match the total number of apartments', () => {
     const answers = completeApartmentAnswers();
     answers.apartmentDistribution = { oneBedroom: 2, twoBedrooms: 0, threeBedrooms: 0 };
 
+    expect(validateStep(0, answers, santaInesConfig).errors.map((error) => error.name)).toContain('apartmentDistribution.oneBedroom');
+
+    answers.apartmentDistribution = { oneBedroom: 2, twoBedrooms: 2, threeBedrooms: 1 };
     expect(validateStep(0, answers, santaInesConfig).valid).toBe(true);
   });
 
@@ -46,7 +49,7 @@ describe('discovery step validation', () => {
     const answers = {
       ...initialAnswers,
       services: ['other'],
-      apartmentPhotos: 'none',
+       apartmentPhotos: ['none'],
     };
 
     expect(validateStep(1, answers, santaInesConfig).errors.map((error) => error.name)).toContain('servicesOther');
@@ -65,7 +68,7 @@ describe('discovery step validation', () => {
       ...initialAnswers,
       desiredCapabilities: ['availability'],
       externalPlatforms: ['other'],
-      domainPreference: 'santaines-co',
+      domainPreference: ['santaines-co'],
       personalReview: 'yes',
       requestChannels: ['whatsapp'],
     };
@@ -92,7 +95,7 @@ describe('discovery step validation', () => {
       ...initialAnswers,
       desiredCapabilities: ['availability'],
       externalPlatforms: ['not-now'],
-      domainPreference: 'other',
+      domainPreference: ['other'],
       personalReview: 'yes',
       requestChannels: ['whatsapp'],
     };
@@ -101,7 +104,7 @@ describe('discovery step validation', () => {
     answers.domainOther = 'santainesalojamiento.co';
     expect(validateStep(5, answers, santaInesConfig).valid).toBe(true);
 
-    answers.domainPreference = 'existing';
+    answers.domainPreference = ['existing'];
     answers.domainOther = '';
     expect(validateStep(5, answers, santaInesConfig).errors.map((error) => error.name)).toContain('existingDomain');
     answers.existingDomain = 'santaines.com.co';
@@ -113,7 +116,7 @@ describe('discovery step validation', () => {
       ...initialAnswers,
       desiredCapabilities: ['availability'],
       externalPlatforms: ['not-now'],
-      domainPreference: 'santaines-com',
+      domainPreference: ['santaines-com'],
       personalReview: 'yes',
       requestChannels: ['email'],
       requestEmail: 'correo-invalido',
@@ -131,8 +134,8 @@ describe('discovery step validation', () => {
       confirmedReservationTracking: ['calendar'],
       bookingInformation: 'Nombres y fechas',
       reservationConditions: ['other'],
-      afterHours: 'whatsapp',
-      reservationAuthority: 'administration',
+       afterHours: ['whatsapp'],
+       reservationAuthority: ['administration'],
     };
 
     expect(validateStep(4, answers, santaInesConfig).errors.map((error) => error.name)).toContain('reservationConditionsOther');
