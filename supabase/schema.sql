@@ -14,7 +14,7 @@ create table if not exists public.discovery_submissions (
   constraint discovery_submissions_step_check check (current_step between 0 and 8),
   constraint discovery_submissions_status_check check (status in ('IN_PROGRESS', 'SUBMITTED')),
   constraint discovery_submissions_client_slug_check check (length(trim(client_slug)) > 0),
-  constraint discovery_submissions_token_check check (length(trim(token)) >= 16),
+   constraint discovery_submissions_token_check check (length(trim(token)) > 0),
   constraint discovery_submissions_token_mode_key unique (token, is_test)
 );
 

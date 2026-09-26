@@ -21,6 +21,8 @@ For a project that already has the original single-token table, run [`supabase/m
 
 For an existing project that already has the table and needs the internal delete action, run [`supabase/migration_internal_delete.sql`](./supabase/migration_internal_delete.sql) in the SQL Editor.
 
+For an existing project that still enforces the old 16-character token check, run [`supabase/migration_allow_short_tokens.sql`](./supabase/migration_allow_short_tokens.sql) in the SQL Editor.
+
 ## 3. Configure the environment
 
 Copy `.env.example` to `.env.local` and fill in:
@@ -41,6 +43,8 @@ Generate a secure token from this project directory:
 ```bash
 node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"
 ```
+
+Tokens can be any non-empty value, including short values such as `test` or `prueba`. For real client links, use a long random token so the link is harder to guess.
 
 The first visit with that token creates the row in Supabase automatically. The client link is:
 
