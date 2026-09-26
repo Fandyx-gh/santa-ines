@@ -1,0 +1,187 @@
+import { useState } from 'react';
+import { ArrowLeft, LockKeyhole, RefreshCw } from 'lucide-react';
+import { santaInesConfig } from '../config/santaInes';
+import { readInternalSubmissions } from '../lib/persistence';
+import { getSectionSummary } from '../lib/summary';
+import { parseAnswers } from '../lib/validation';
+import type { DiscoverySubmissionRow } from '../types/discovery';
+
+type ResponseFilter = 'real' | 'test' | 'all';
+
+function formatDate(value: string | null): string {
+  if (!value) {
+    return 'Aún no enviado';
+  }
+  try {
+    return new Intl.DateTimeFormat('es-CO', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(value));
+  } catch {
+    return value;
+  }
+}
+
+function SubmissionCard({ row }: { row: DiscoverySubmissionRow }) {
+  const answers = parseAnswers(row.answers);
+  const completion = row.status === 'SUBMITTED'
+    ? 100
+    : Math.min(99, Math.round((row.current_step / santaInesConfig.sections.length) * 100));
+
+  return (
+    <article className={`submission-card${row.is_test ? ' submission-card--test' : ''}`}>
+      <div className="submission-card__header">
+        <div>
+          {row.is_test ? <span className="test-mode-badge">MODO PRUEBA</span> : null}
+          <span className="eyebrow">{row.status === 'SUBMITTED' ? 'Enviado' : 'En progreso'}</span>
+          <h2>{row.token}</h2>
+        </div>
+        <div className="completion-badge">{completion}%</div>
+      </div>
+      <div className="submission-meta">
+        <span>Actualizado: {formatDate(row.updated_at)}</span>
+        <span>Enviado: {formatDate(row.submitted_at)}</span>
+      </div>
+      {answers ? (
+        <div className="response-sections">
+          {santaInesConfig.sections.map((section) => (
+            <details className="response-section" key={section.id} open={row.status === 'SUBMITTED'}>
+              <summary>{section.label}</summary>
+              <dl className="response-fields">
+                {getSectionSummary(section, answers).map((summary) => (
+                  <div className="response-field" key={`${summary.label}-${summary.value}`}>
+                    <dt>{summary.label}</dt>
+                    <dd>{summary.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </details>
+          ))}
+        </div>
+      ) : (
+        <p className="internal-muted">No se pudo leer el formato de respuestas de este registro.</p>
+      )}
+    </article>
+  );
+}
+
+function AccessGate({ onAuthorize }: { onAuthorize: (value: string) => void }) {
+  const [value, setValue] = useState('');
+  const configured = Boolean(import.meta.env.VITE_INTERNAL_ACCESS_KEY);
+
+  return (
+    <main className="access-page page-shell">
+      <LockKeyhole size={26} strokeWidth={1.5} aria-hidden="true" />
+      <span className="eyebrow">Santa Inés · Uso interno</span>
+      <h1>Respuestas recibidas</h1>
+      <p>Ingresa la clave interna para consultar las respuestas de descubrimiento.</p>
+      {!configured ? <p className="field-error">Configura VITE_INTERNAL_ACCESS_KEY para habilitar esta vista.</p> : null}
+      <form
+        className="access-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          onAuthorize(value);
+        }}
+      >
+        <label htmlFor="internal-key">Clave interna</label>
+        <input
+          id="internal-key"
+          className="text-field"
+          type="password"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          autoComplete="current-password"
+        />
+        <button className="button button--primary" type="submit" disabled={!configured}>
+          Entrar
+        </button>
+      </form>
+    </main>
+  );
+}
+
+export function InternalResponses() {
+  const [authorized, setAuthorized] = useState(false);
+  const [rows, setRows] = useState<DiscoverySubmissionRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [filter, setFilter] = useState<ResponseFilter>('real');
+
+  const loadRows = async () => {
+    const accessKey = import.meta.env.VITE_INTERNAL_ACCESS_KEY ?? '';
+    setLoading(true);
+    setError('');
+    try {
+      setRows(await readInternalSubmissions(accessKey));
+    } catch {
+      setError('No pudimos cargar las respuestas. Revisa la configuración de Supabase.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!authorized) {
+    return (
+      <AccessGate
+        onAuthorize={(value) => {
+          if (value === import.meta.env.VITE_INTERNAL_ACCESS_KEY) {
+            setAuthorized(true);
+            void loadRows();
+          }
+        }}
+      />
+    );
+  }
+
+  const visibleRows = rows.filter((row) => {
+    if (filter === 'all') {
+      return true;
+    }
+    return filter === 'test' ? row.is_test : !row.is_test;
+  });
+
+  return (
+    <main className="internal-page page-shell page-shell--internal">
+      <header className="internal-header">
+        <div>
+          <span className="eyebrow">Santa Inés · Uso interno</span>
+          <h1>Respuestas de descubrimiento</h1>
+        </div>
+        <div className="internal-header__actions">
+          <button className="button button--secondary" type="button" onClick={() => setAuthorized(false)}>
+            <ArrowLeft size={16} aria-hidden="true" />
+            Salir
+          </button>
+          <button className="button button--secondary" type="button" onClick={() => void loadRows()} disabled={loading}>
+            <RefreshCw size={16} aria-hidden="true" />
+            Actualizar
+          </button>
+        </div>
+      </header>
+      <div className="response-filters" role="tablist" aria-label="Filtrar respuestas">
+        {([
+          ['all', 'Todos'],
+          ['real', 'Reales'],
+          ['test', 'Pruebas'],
+        ] as const).map(([value, label]) => (
+          <button
+            className={`response-filter${filter === value ? ' response-filter--active' : ''}`}
+            key={value}
+            type="button"
+            role="tab"
+            aria-selected={filter === value}
+            onClick={() => setFilter(value)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {error ? <p className="field-error" role="alert">{error}</p> : null}
+      {loading ? <p className="internal-muted">Cargando respuestas…</p> : null}
+      {!loading && visibleRows.length === 0 ? <p className="internal-muted">No hay respuestas en este filtro.</p> : null}
+      <div className="submission-list">
+        {visibleRows.map((row) => <SubmissionCard key={row.id} row={row} />)}
+      </div>
+    </main>
+  );
+}

@@ -1,0 +1,30 @@
+
+> santa-ines-discovery@1.0.0 dev
+> vite --host 127.0.0.1 --port 5174
+
+[2m9:37:29 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m Re-optimizing dependencies because lockfile has changed
+
+  [32m[1mVITE[22m v6.4.3[39m  [2mready in [0m[1m706[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5174[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+[2m9:49:20 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m9:55:42 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m9:55:42 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m9:56:42 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/features/discovery/DiscoveryWizard.tsx, /src/index.css[22m
+[2m9:56:42 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/features/discovery/DiscoveryWizard.tsx, /src/index.css[22m
+[2m10:00:04 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/lib/validation.test.ts[22m
+[2m10:00:04 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/lib/validation.test.ts[22m
+[2m10:00:56 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/InternalResponses.tsx, /src/index.css[22m
+[2m10:00:56 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/InternalResponses.tsx, /src/index.css[22m
+[2m10:01:33 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/InternalResponses.tsx, /src/index.css[22m
+[2m10:02:14 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m10:02:14 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:22:07 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/types/discovery.ts[22m
+[2m11:22:31 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/SantaInesDiscovery.tsx, /src/index.css, /src/pages/InternalResponses.tsx, /src/features/discovery/ReviewScreen.tsx, /src/features/discovery/DiscoveryWizard.tsx, /src/components/QuestionRenderer.tsx[22m
+[2m11:22:55 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/SantaInesDiscovery.tsx, /src/index.css, /src/pages/InternalResponses.tsx, /src/features/discovery/ReviewScreen.tsx, /src/features/discovery/DiscoveryWizard.tsx, /src/components/QuestionRenderer.tsx[22m
+[2m11:23:02 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/SantaInesDiscovery.tsx, /src/index.css, /src/pages/InternalResponses.tsx, /src/features/discovery/ReviewScreen.tsx, /src/features/discovery/DiscoveryWizard.tsx, /src/components/QuestionRenderer.tsx[22m
+[2m11:23:09 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/SantaInesDiscovery.tsx, /src/index.css, /src/pages/InternalResponses.tsx, /src/features/discovery/ReviewScreen.tsx, /src/features/discovery/DiscoveryWizard.tsx, /src/components/QuestionRenderer.tsx[22m
+[2m11:23:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/InternalResponses.tsx, /src/index.css, /src/features/discovery/ReviewScreen.tsx, /src/pages/SantaInesDiscovery.tsx, /src/features/discovery/DiscoveryWizard.tsx, /src/components/QuestionRenderer.tsx[22m
+[2m11:23:39 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/lib/validation.test.ts[22m
+[2m11:26:38 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/SantaInesDiscovery.tsx, /src/index.css, /src/pages/InternalResponses.tsx, /src/features/discovery/ReviewScreen.tsx, /src/features/discovery/DiscoveryWizard.tsx, /src/components/QuestionRenderer.tsx[22m
