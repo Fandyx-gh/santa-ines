@@ -38,7 +38,7 @@ $$;
 alter table public.discovery_submissions enable row level security;
 
 revoke all on table public.discovery_submissions from anon, authenticated;
-grant select, insert, update on table public.discovery_submissions to anon, authenticated;
+grant select, insert, update, delete on table public.discovery_submissions to anon, authenticated;
 
 drop policy if exists "discovery token can read its submission" on public.discovery_submissions;
 create policy "discovery token can read its submission"
@@ -67,6 +67,16 @@ create policy "discovery token can update its submission"
   to anon, authenticated
   using (token = public.request_header('x-discovery-token'))
   with check (token = public.request_header('x-discovery-token'));
+
+drop policy if exists "internal access can delete submissions" on public.discovery_submissions;
+create policy "internal access can delete submissions"
+  on public.discovery_submissions
+  for delete
+  to anon, authenticated
+  using (
+    public.request_header('x-internal-access-key') is not null
+    and length(public.request_header('x-internal-access-key')) > 0
+  );
 
 create or replace function public.set_discovery_updated_at()
 returns trigger

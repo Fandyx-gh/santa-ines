@@ -57,6 +57,8 @@ export function DiscoveryWizard({ config, initialState, testMode }: DiscoveryWiz
   const [submittedAt, setSubmittedAt] = useState<string | null>(initialState.submittedAt ?? null);
   const [showSubmittedSummary, setShowSubmittedSummary] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>('saved');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const { control, formState, getValues, setError, clearErrors, setValue, reset } = useForm<DiscoveryAnswers>({
     defaultValues: initialState.answers,
     mode: 'onChange',
@@ -145,9 +147,11 @@ export function DiscoveryWizard({ config, initialState, testMode }: DiscoveryWiz
           reset(initialAnswers);
           setSubmittedAt(null);
           setStatus('IN_PROGRESS');
-          setCurrentStep(0);
-          setShowSubmittedSummary(false);
-          setSaveState('saving');
+           setCurrentStep(0);
+           setShowSubmittedSummary(false);
+           setSubmitError('');
+           setIsSubmitting(false);
+           setSaveState('saving');
           void saveRemoteState(initialState.token, 0, initialAnswers, 'IN_PROGRESS', null, true)
             .then(() => setSaveState('saved'))
             .catch(() => setSaveState('error'));
@@ -179,12 +183,14 @@ export function DiscoveryWizard({ config, initialState, testMode }: DiscoveryWiz
           setCurrentStep(sectionIndex + 1);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
-        onBack={() => {
-          setCurrentStep(totalSteps);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onSubmit={submitFromReview}
-      />
+         onBack={() => {
+           setCurrentStep(totalSteps);
+           window.scrollTo({ top: 0, behavior: 'smooth' });
+         }}
+         onSubmit={submitFromReview}
+         isSubmitting={isSubmitting}
+         submitError={submitError}
+       />
     );
   }
 
@@ -219,8 +225,13 @@ export function DiscoveryWizard({ config, initialState, testMode }: DiscoveryWiz
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function submitFromReview() {
+  async function submitFromReview() {
+    if (isSubmitting) {
+      return;
+    }
+
     clearErrors();
+    setSubmitError('');
     const result = validateAll(getValues(), config);
     if (!result.valid) {
       const firstError = result.errors[0];
@@ -236,23 +247,38 @@ export function DiscoveryWizard({ config, initialState, testMode }: DiscoveryWiz
     const nextSubmittedAt = new Date().toISOString();
     const nextStep = totalSteps + 1;
     const finalAnswers = getValues();
-    writeLocalState({
-      token: initialState.token,
-      isTest: testMode,
-      currentStep: nextStep,
-      answers: finalAnswers,
-      status: 'SUBMITTED',
-      updatedAt: nextSubmittedAt,
-      submittedAt: nextSubmittedAt,
-    });
-    setSubmittedAt(nextSubmittedAt);
-    setStatus('SUBMITTED');
-    setCurrentStep(nextStep);
-    if (isSupabaseConfigured) {
-      setSaveState('saving');
-      void saveRemoteState(initialState.token, nextStep, finalAnswers, 'SUBMITTED', nextSubmittedAt, testMode)
-        .then(() => setSaveState('saved'))
-        .catch(() => setSaveState('error'));
+    setIsSubmitting(true);
+    try {
+      if (!isSupabaseConfigured && !testMode) {
+        setSaveState('error');
+        setSubmitError('La conexión con Supabase no está configurada. No se pueden enviar respuestas reales todavía.');
+        return;
+      }
+
+      if (isSupabaseConfigured) {
+        setSaveState('saving');
+        await saveRemoteState(initialState.token, nextStep, finalAnswers, 'SUBMITTED', nextSubmittedAt, testMode);
+      }
+
+      writeLocalState({
+        token: initialState.token,
+        isTest: testMode,
+        currentStep: nextStep,
+        answers: finalAnswers,
+        status: 'SUBMITTED',
+        updatedAt: nextSubmittedAt,
+        submittedAt: nextSubmittedAt,
+      });
+      setSubmittedAt(nextSubmittedAt);
+      setStatus('SUBMITTED');
+      setCurrentStep(nextStep);
+      setSaveState('saved');
+    } catch {
+      setSaveState('error');
+      setSubmitError('No pudimos enviar las respuestas. Revisa la conexión con Supabase e inténtalo de nuevo.');
+      return;
+    } finally {
+      setIsSubmitting(false);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }

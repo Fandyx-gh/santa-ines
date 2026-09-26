@@ -19,6 +19,8 @@ The table is `discovery_submissions`. It stores separate rows for `(token, is_te
 
 For a project that already has the original single-token table, run [`supabase/migration_test_mode.sql`](./supabase/migration_test_mode.sql) instead of recreating the table. It adds `is_test` and safely replaces the old unique-token constraint with a composite `(token, is_test)` constraint.
 
+For an existing project that already has the table and needs the internal delete action, run [`supabase/migration_internal_delete.sql`](./supabase/migration_internal_delete.sql) in the SQL Editor.
+
 ## 3. Configure the environment
 
 Copy `.env.example` to `.env.local` and fill in:

@@ -24,6 +24,16 @@ describe('persistence conflict handling', () => {
     expect(chooseFreshestState(state('2026-01-01T12:00:00.000Z'), state('2026-01-01T09:00:00.000Z', 'SUBMITTED'))?.status).toBe('SUBMITTED');
   });
 
+  it('recovers a locally submitted state when the remote submission is still in progress', () => {
+    const recovered = chooseFreshestState(
+      state('2026-01-01T12:00:00.000Z', 'SUBMITTED'),
+      state('2026-01-01T09:00:00.000Z'),
+    );
+
+    expect(recovered?.status).toBe('IN_PROGRESS');
+    expect(recovered?.submittedAt).toBeNull();
+  });
+
   it('marks test and real payloads independently', () => {
     const testPayload = buildSubmissionPayload('test-token-1234567890', 8, initialAnswers, 'SUBMITTED', '2026-01-01T12:00:00.000Z', true);
     const realPayload = buildSubmissionPayload('test-token-1234567890', 8, initialAnswers, 'SUBMITTED', '2026-01-01T12:00:00.000Z', false);

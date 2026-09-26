@@ -117,7 +117,11 @@ export function chooseFreshestState(
     return localState;
   }
   if (localState.status === 'SUBMITTED' && remoteState.status !== 'SUBMITTED') {
-    return localState;
+    return {
+      ...localState,
+      status: 'IN_PROGRESS',
+      submittedAt: null,
+    };
   }
   if (remoteState.status === 'SUBMITTED' && localState.status !== 'SUBMITTED') {
     return remoteState;
@@ -206,6 +210,27 @@ export async function readInternalSubmissions(accessKey: string): Promise<Discov
   }
 
   return result.data;
+}
+
+export async function deleteInternalSubmission(id: string, accessKey: string): Promise<void> {
+  const client = getScopedSupabaseClient({ 'x-internal-access-key': accessKey });
+  if (!client) {
+    throw new Error('Supabase no está configurado.');
+  }
+
+  const result = await client
+    .from('discovery_submissions')
+    .delete()
+    .eq('id', id)
+    .select('id');
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (result.data.length === 0) {
+    throw new Error('No se encontró la respuesta para eliminar.');
+  }
 }
 
 export function createEmptyState(token: string, isTest = false): PersistedState {

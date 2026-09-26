@@ -8,8 +8,10 @@ interface ReviewScreenProps {
   answers: DiscoveryAnswers;
   onEdit?: (sectionIndex: number) => void;
   onBack: () => void;
-  onSubmit?: () => void;
+  onSubmit?: () => void | Promise<void>;
   readOnly?: boolean;
+  isSubmitting?: boolean;
+  submitError?: string;
 }
 
 export function ReviewScreen({
@@ -19,6 +21,8 @@ export function ReviewScreen({
   onBack,
   onSubmit,
   readOnly = false,
+  isSubmitting = false,
+  submitError = '',
 }: ReviewScreenProps) {
   const [openSections, setOpenSections] = useState<number[]>(() => config.sections.map((_, index) => index));
 
@@ -85,14 +89,16 @@ export function ReviewScreen({
         })}
       </div>
 
+      {submitError ? <p className="field-error review-submit-error" role="alert">{submitError}</p> : null}
+
       <div className="review-actions">
         <button className="button button--secondary" type="button" onClick={onBack}>
           <ChevronLeft size={18} aria-hidden="true" />
           Volver
         </button>
         {!readOnly && onSubmit ? (
-          <button className="button button--primary" type="button" onClick={onSubmit}>
-            Enviar respuestas
+          <button className="button button--primary" type="button" onClick={() => { void onSubmit(); }} disabled={isSubmitting}>
+            {isSubmitting ? 'Enviando…' : 'Enviar respuestas'}
           </button>
         ) : null}
       </div>

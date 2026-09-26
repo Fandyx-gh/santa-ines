@@ -147,6 +147,18 @@ h2 {
   border-color: var(--terracotta);
 }
 
+.button--danger {
+  color: var(--terracotta);
+  background: transparent;
+  border-color: rgba(166, 93, 67, 0.35);
+}
+
+.button--danger:hover:not(:disabled) {
+  color: var(--warm-white);
+  background: var(--terracotta);
+  border-color: var(--terracotta);
+}
+
 .intro-page {
   display: flex;
   min-height: 100vh;
@@ -921,6 +933,10 @@ h2 {
   margin-top: 32px;
 }
 
+.review-submit-error {
+  margin-top: 25px;
+}
+
 .success-page,
 .message-page,
 .access-page {
@@ -1076,6 +1092,36 @@ h2 {
   gap: 22px;
 }
 
+.token-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--sand);
+  border-radius: 16px;
+  background: rgba(255, 253, 252, 0.55);
+}
+
+.token-group__header {
+  padding-bottom: 13px;
+  border-bottom: 1px solid var(--sand);
+}
+
+.token-group__header h2 {
+  margin-top: 8px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.97rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.token-group__records {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .submission-card {
   padding: 23px;
   border: 1px solid var(--sand);
@@ -1156,6 +1202,12 @@ h2 {
   margin-top: 17px;
   color: var(--olive);
   font-size: 0.72rem;
+}
+
+.submission-card__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 17px;
 }
 
 .response-sections {

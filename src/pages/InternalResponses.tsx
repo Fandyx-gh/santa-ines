@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { ArrowLeft, LockKeyhole, RefreshCw } from 'lucide-react';
+import { ArrowLeft, LockKeyhole, RefreshCw, Trash2 } from 'lucide-react';
 import { santaInesConfig } from '../config/santaInes';
-import { readInternalSubmissions } from '../lib/persistence';
+import { deleteInternalSubmission, readInternalSubmissions } from '../lib/persistence';
 import { getSectionSummary } from '../lib/summary';
 import { parseAnswers } from '../lib/validation';
 import type { DiscoverySubmissionRow } from '../types/discovery';
@@ -22,8 +22,17 @@ function formatDate(value: string | null): string {
   }
 }
 
-function SubmissionCard({ row }: { row: DiscoverySubmissionRow }) {
+function SubmissionCard({
+  row,
+  deleting,
+  onDelete,
+}: {
+  row: DiscoverySubmissionRow;
+  deleting: boolean;
+  onDelete: (row: DiscoverySubmissionRow) => void;
+}) {
   const answers = parseAnswers(row.answers);
+  const submittedAt = row.submitted_at ?? (row.status === 'SUBMITTED' ? row.updated_at : null);
   const completion = row.status === 'SUBMITTED'
     ? 100
     : Math.min(99, Math.round((row.current_step / santaInesConfig.sections.length) * 100));
@@ -34,13 +43,23 @@ function SubmissionCard({ row }: { row: DiscoverySubmissionRow }) {
         <div>
           {row.is_test ? <span className="test-mode-badge">MODO PRUEBA</span> : null}
           <span className="eyebrow">{row.status === 'SUBMITTED' ? 'Enviado' : 'En progreso'}</span>
-          <h2>{row.token}</h2>
         </div>
         <div className="completion-badge">{completion}%</div>
       </div>
       <div className="submission-meta">
         <span>Actualizado: {formatDate(row.updated_at)}</span>
-        <span>Enviado: {formatDate(row.submitted_at)}</span>
+        <span>Enviado: {formatDate(submittedAt)}</span>
+      </div>
+      <div className="submission-card__actions">
+        <button
+          className="button button--danger"
+          type="button"
+          onClick={() => onDelete(row)}
+          disabled={deleting}
+        >
+          <Trash2 size={15} aria-hidden="true" />
+          {deleting ? 'Eliminando…' : 'Eliminar respuesta'}
+        </button>
       </div>
       {answers ? (
         <div className="response-sections">
@@ -105,6 +124,7 @@ export function InternalResponses() {
   const [rows, setRows] = useState<DiscoverySubmissionRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<ResponseFilter>('real');
 
   const loadRows = async () => {
@@ -139,6 +159,31 @@ export function InternalResponses() {
     }
     return filter === 'test' ? row.is_test : !row.is_test;
   });
+  const rowsByToken = visibleRows.reduce<Map<string, DiscoverySubmissionRow[]>>((groups, row) => {
+    const tokenRows = groups.get(row.token) ?? [];
+    tokenRows.push(row);
+    groups.set(row.token, tokenRows);
+    return groups;
+  }, new Map());
+
+  const deleteSubmission = async (row: DiscoverySubmissionRow) => {
+    const mode = row.is_test ? 'de prueba' : 'real';
+    const confirmed = window.confirm(`¿Eliminar la respuesta ${mode} del token ${row.token}? Esta acción no se puede deshacer.`);
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingId(row.id);
+    setError('');
+    try {
+      await deleteInternalSubmission(row.id, import.meta.env.VITE_INTERNAL_ACCESS_KEY ?? '');
+      setRows((currentRows) => currentRows.filter((currentRow) => currentRow.id !== row.id));
+    } catch {
+      setError('No pudimos eliminar la respuesta. Revisa la política de Supabase e inténtalo de nuevo.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <main className="internal-page page-shell page-shell--internal">
@@ -180,7 +225,24 @@ export function InternalResponses() {
       {loading ? <p className="internal-muted">Cargando respuestas…</p> : null}
       {!loading && visibleRows.length === 0 ? <p className="internal-muted">No hay respuestas en este filtro.</p> : null}
       <div className="submission-list">
-        {visibleRows.map((row) => <SubmissionCard key={row.id} row={row} />)}
+        {Array.from(rowsByToken.entries()).map(([token, tokenRows]) => (
+          <section className="token-group" key={token}>
+            <header className="token-group__header">
+              <span className="eyebrow">Token</span>
+              <h2>{token}</h2>
+            </header>
+            <div className="token-group__records">
+              {tokenRows.map((row) => (
+                <SubmissionCard
+                  key={row.id}
+                  row={row}
+                  deleting={deletingId === row.id}
+                  onDelete={deleteSubmission}
+                />
+              ))}
+            </div>
+          </section>
+        ))}
       </div>
     </main>
   );
