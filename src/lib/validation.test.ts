@@ -35,6 +35,18 @@ describe('discovery step validation', () => {
     expect(validateStep(0, answers, santaInesConfig).valid).toBe(true);
   });
 
+  it('only requires occupancy for apartment types present in the distribution', () => {
+    const answers = {
+      ...initialAnswers,
+      totalApartments: 1,
+      apartmentDistribution: { oneBedroom: 1, twoBedrooms: 0, threeBedrooms: 0 },
+      apartmentsSimilar: 'yes',
+      apartmentOccupancy: { oneBedroom: 1, twoBedrooms: null, threeBedrooms: null },
+    };
+
+    expect(validateStep(0, answers, santaInesConfig).valid).toBe(true);
+  });
+
   it('does not require hidden conditional fields', () => {
     const answers = completeApartmentAnswers();
     expect(validateStep(0, answers, santaInesConfig).valid).toBe(true);

@@ -171,15 +171,17 @@ function DistributionFields({
 function OccupancyFields({
   control,
   setValue,
+  distribution,
 }: {
   control: Control<DiscoveryAnswers>;
   setValue: UseFormSetValue<DiscoveryAnswers>;
+  distribution: DiscoveryAnswers['apartmentDistribution'];
 }) {
   const fields = [
-    { name: 'apartmentOccupancy.oneBedroom' as const, label: '1 habitación' },
-    { name: 'apartmentOccupancy.twoBedrooms' as const, label: '2 habitaciones' },
-    { name: 'apartmentOccupancy.threeBedrooms' as const, label: '3 habitaciones' },
-  ];
+    { key: 'oneBedroom' as const, name: 'apartmentOccupancy.oneBedroom' as const, label: '1 habitación' },
+    { key: 'twoBedrooms' as const, name: 'apartmentOccupancy.twoBedrooms' as const, label: '2 habitaciones' },
+    { key: 'threeBedrooms' as const, name: 'apartmentOccupancy.threeBedrooms' as const, label: '3 habitaciones' },
+  ].filter((fieldDefinition) => distribution[fieldDefinition.key] > 0);
 
   return (
     <div className="occupancy-grid">
@@ -320,7 +322,11 @@ export function QuestionRenderer({ question, control, errors, answers, setValue 
   if (question.type === 'occupancy') {
     return (
       <FormQuestion question={question} error={error}>
-        <OccupancyFields control={control} setValue={setValue} />
+        <OccupancyFields
+          control={control}
+          setValue={setValue}
+          distribution={answers.apartmentDistribution}
+        />
       </FormQuestion>
     );
   }

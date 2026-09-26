@@ -148,8 +148,13 @@ function validateQuestion(question: QuestionDefinition, answers: DiscoveryAnswer
       && distributionTotal === answers.totalApartments;
   } else if (question.type === 'occupancy') {
     const occupancy = value as DiscoveryAnswers['apartmentOccupancy'];
+    const relevantTypes = (Object.keys(answers.apartmentDistribution) as Array<keyof DiscoveryAnswers['apartmentDistribution']>)
+      .filter((type) => answers.apartmentDistribution[type] > 0);
     isComplete = answers.apartmentOccupancyUnknown
-      || Object.values(occupancy).every((item) => typeof item === 'number' && Number.isFinite(item));
+      || (relevantTypes.length > 0 && relevantTypes.every((type) => {
+        const item = occupancy[type];
+        return typeof item === 'number' && Number.isFinite(item);
+      }));
   } else if (question.type === 'single' || question.type === 'text' || question.type === 'textarea') {
     isComplete = isFilledString(value);
   } else if (question.type === 'multi') {

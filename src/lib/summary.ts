@@ -35,11 +35,15 @@ function formatValue(question: QuestionDefinition, answers: DiscoveryAnswers): s
       return 'No estoy segura/o';
     }
     const occupancy = value as Record<string, unknown>;
-    return [
-      `1 habitación: ${occupancy.oneBedroom ?? '—'}`,
-      `2 habitaciones: ${occupancy.twoBedrooms ?? '—'}`,
-      `3 habitaciones: ${occupancy.threeBedrooms ?? '—'}`,
-    ].join(' · ');
+    const labels = [
+      ['oneBedroom', '1 habitación'],
+      ['twoBedrooms', '2 habitaciones'],
+      ['threeBedrooms', '3 habitaciones'],
+    ] as const;
+    return labels
+      .filter(([type]) => answers.apartmentDistribution[type] > 0)
+      .map(([type, label]) => `${label}: ${occupancy[type] ?? '—'}`)
+      .join(' · ');
   }
 
   if (Array.isArray(value)) {
